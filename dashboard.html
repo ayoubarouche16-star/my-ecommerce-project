@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="لوحة تحكم المستخدم تتيح إدارة الرصيد، عرض المعاملات، استقبال الإشعارات والتحكم الكامل بالحساب.">
+    <title>لوحة التحكم</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-5">
+    <h1>مرحبًا، {{ user.email }}</h1>
+    <p>رصيدك الحالي: {{ user.balance }} USDT</p>
+
+    <h3>الإشعارات</h3>
+    <ul>
+        {% for note in notifications %}
+            <li>{{ note.message }} - {{ note.created_at }}</li>
+        {% endfor %}
+    </ul>
+
+    <h3>المعاملات</h3>
+    <ul>
+        {% for txn in transactions %}
+            <li>{{ txn.type }} - {{ txn.amount }} - {{ txn.target_email or 'N/A' }} - {{ txn.created_at }}</li>
+        {% endfor %}
+    </ul>
+
+    <h3>تحويل الرصيد</h3>
+    <form method="POST" action="{{ url_for('transfer') }}">
+        <input type="email" name="target_email" placeholder="بريد المستلم" required class="form-control mb-2">
+        <input type="number" step="0.01" name="amount" placeholder="المبلغ" required class="form-control mb-2">
+        <button class="btn btn-primary">تحويل</button>
+    </form>
+
+    <h3>سحب الرصيد</h3>
+    <form method="POST" action="{{ url_for('withdraw') }}">
+        <input type="number" step="0.01" name="amount" placeholder="المبلغ" required class="form-control mb-2">
+        <button class="btn btn-warning">سحب</button>
+    </form>
+
+    <a href="{{ url_for('logout') }}" class="btn btn-danger mt-3">تسجيل خروج</a>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

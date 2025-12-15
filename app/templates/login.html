@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
+</head>
+<body>
+    <h2>تسجيل الدخول</h2>
+    <form method="post">
+        <input type="email" name="email" required placeholder="Email">
+        <button type="submit">دخول</button>
+    </form>
+    <p>ليس لديك حساب؟ <a href="{{ url_for('register') }}">إنشاء حساب</a></p>
+</body>
+</html>
