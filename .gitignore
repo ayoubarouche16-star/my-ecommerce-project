@@ -1,5 +1,19 @@
-venv/
+# Python
 __pycache__/
-*.pyc
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual Environment
+venv/
 .env
+
+# SQLite
+*.db
+*.sqlite3
+
+# Flask instance
 instance/
+
+# OS
+.DS_Store
