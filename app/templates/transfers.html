@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>التحويلات المالية</title>
+</head>
+<body>
+    <h1>إجراء تحويل مالي</h1>
+    <form method="POST">
+        <input type="text" name="recipient" placeholder="اسم المستلم" required>
+        <input type="number" name="amount" placeholder="المبلغ" required>
+        <button type="submit">تحويل</button>
+    </form>
+    <a href="{{ url_for('dashboard') }}">العودة للوحة التحكم</a>
+</body>
+</html>
