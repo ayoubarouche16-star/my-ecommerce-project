@@ -1,5 +1,6 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, current_app
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask_login import login_user, logout_user, login_required
 import jwt
 import datetime
 
@@ -20,7 +21,21 @@ class User:
     def get_id(self):
         return str(self.id)
 
-SECRET_KEY = "YOUR_SECRET_KEY_HERE"  # ضع مفتاح سري قوي هنا
+    # ✅ إضافة مطلوبة لـ Flask-Login
+    @property
+    def is_authenticated(self):
+        return True
+
+    @property
+    def is_active(self):
+        return True
+
+    @property
+    def is_anonymous(self):
+        return False
+
+
+SECRET_KEY = "YOUR_SECRET_KEY_HERE"  # محفوظ كما هو (لن نكسره)
 
 # تسجيل مستخدم جديد
 @auth_bp.route("/register", methods=["POST"])
@@ -46,7 +61,8 @@ def register():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-# تسجيل الدخول مع إنشاء JWT
+
+# تسجيل الدخول مع إنشاء JWT + Flask-Login
 @auth_bp.route("/login", methods=["POST"])
 def login():
     try:
@@ -58,24 +74,39 @@ def login():
         if not user or not user.check_password(password):
             return jsonify({"error": "اسم المستخدم أو كلمة المرور غير صحيحة"}), 401
 
-        # إنشاء التوكن مع صلاحية 24 ساعة
-        token = jwt.encode({
-            "user_id": user.get_id(),
-            "exp": datetime.datetime.utcnow() + datetime.timedelta(hours=24)
-        }, SECRET_KEY, algorithm="HS256")
+        # ✅ تسجيل الدخول عبر Flask-Login
+        login_user(user)
 
-        return jsonify({"message": "تم تسجيل الدخول بنجاح", "user_id": user.get_id(), "token": token}), 200
+        # إنشاء التوكن مع صلاحية 24 ساعة
+        token = jwt.encode(
+            {
+                "user_id": user.get_id(),
+                "exp": datetime.datetime.utcnow() + datetime.timedelta(hours=24)
+            },
+            current_app.config.get("SECRET_KEY", SECRET_KEY),
+            algorithm="HS256"
+        )
+
+        return jsonify({
+            "message": "تم تسجيل الدخول بنجاح",
+            "user_id": user.get_id(),
+            "token": token
+        }), 200
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
 # تسجيل الخروج
 @auth_bp.route("/logout", methods=["POST"])
+@login_required
 def logout():
+    logout_user()
     return jsonify({"message": "تم تسجيل الخروج بنجاح"}), 200
+
 
 # حالة المستخدم
 @auth_bp.route("/me", methods=["GET"])
+@login_required
 def me():
-    user_demo = {"id": 1, "username": "demo"}
-    return jsonify({"user": user_demo}), 200
+    return jsonify({"message": "المستخدم مسجّل دخول"}), 200
